@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_app/models/task-item.dart';
-import 'package:intl/intl.dart';
 import 'add_task_screen.dart';
 
 void main() {
@@ -52,6 +51,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
       tasks.removeAt(index); // Remove the task at the specified index
     });
   }
+
+  void _updateTaskDate(int index, DateTime? newDate) {
+    setState(() {
+      tasks[index].selectedDate = newDate; // Update the task's selected date
+    });
+  }
+
   TextEditingController dateInput = TextEditingController();
 
   @override
@@ -67,7 +73,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
             const Row(
               children: [
                 Text(
-                  '2019',
+                  'TO DO LIST',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 30,
@@ -77,10 +83,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
               ],
             ),
             const Text(
-              'April 8th',
+              ' Keep It Up',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 28,
+                fontSize: 20,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -100,6 +106,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     },
                     onDelete: () {
                       _deleteTask(index); // Delete the task at this index
+                    },
+                    onDateSelected: (newDate) {
+                      _updateTaskDate(index, newDate); // Update task date
                     },
                   );
                 },
@@ -129,10 +138,11 @@ class TaskItemData {
   String title;
   String subtitle;
   bool isChecked;
-
+  DateTime? selectedDate;
   TaskItemData({
     required this.title,
     required this.subtitle,
     required this.isChecked,
+    this.selectedDate,
   });
 }

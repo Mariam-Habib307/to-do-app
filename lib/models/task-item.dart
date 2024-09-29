@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+class TaskItemData {
+  String title;
+  String subtitle;
+  bool isChecked;
+  DateTime? selectedDate; // Add selectedDate field
+
+  TaskItemData({
+    required this.title,
+    required this.subtitle,
+    required this.isChecked,
+    this.selectedDate,
+  });
+}
 
 class TaskItem extends StatefulWidget {
   final String title;
   final String subtitle;
   late bool isChecked;
   final ValueChanged<bool?> onChanged;
-  final VoidCallback onDelete; // New callback for delete functionality
+  final VoidCallback onDelete;
+  final Function(DateTime?) onDateSelected; // Add callback for date selection
 
   TaskItem({
     super.key,
@@ -13,7 +29,8 @@ class TaskItem extends StatefulWidget {
     required this.subtitle,
     required this.isChecked,
     required this.onChanged,
-    required this.onDelete, // Initialize onDelete
+    required this.onDelete,
+    required this.onDateSelected, // Initialize onDateSelected
   });
 
   @override
@@ -21,6 +38,24 @@ class TaskItem extends StatefulWidget {
 }
 
 class _TaskItemState extends State<TaskItem> {
+  DateTime? _selectedDate;
+
+  // Function to pick a date using showDatePicker
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (pickedDate != null && pickedDate != _selectedDate) {
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+      widget.onDateSelected(_selectedDate); // Call the date selected callback
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -54,10 +89,18 @@ class _TaskItemState extends State<TaskItem> {
               Text(
                 widget.subtitle,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 15,
                   color: Colors.black54,
                 ),
               ),
+              if (_selectedDate != null) // Display selected date if available
+                Text(
+                  DateFormat('MMMM dd, yyyy').format(_selectedDate!),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color.fromARGB(255, 152, 152, 152),
+                  ),
+                ),
             ],
           ),
           const Spacer(),
@@ -66,8 +109,15 @@ class _TaskItemState extends State<TaskItem> {
             onChanged: widget.onChanged,
           ),
           IconButton(
+            icon: const Icon(Icons.date_range,
+                color: Color.fromARGB(255, 69, 69, 69)),
+            onPressed: () {
+              _selectDate(context); // Open date picker
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.delete_outline,
-                color: Color.fromARGB(255, 25, 2, 0)),
+                color: Color.fromARGB(255, 69, 69, 69)),
             onPressed: widget.onDelete, // Call the delete function
           ),
         ],
